@@ -31,12 +31,12 @@ export function Header() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-14 sm:h-20 flex items-center justify-between">
-        <a href="#" className="inline-flex items-center gap-2 sm:gap-3 rounded-full bg-bordeaux-600/20 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-sm">
-          <span className="font-heading text-xl sm:text-2xl font-semibold text-charcoal-900 tracking-wide">
+        <a href="#" className="inline-flex items-center gap-2 sm:gap-3 rounded-full bg-bordeaux-600/80 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-sm shadow-sm">
+          <span className="font-heading text-xl sm:text-2xl font-semibold text-ivory-100 tracking-wide">
             Эльвира
           </span>
-          <span className="h-5 sm:h-6 w-px bg-charcoal-900/35" aria-hidden="true" />
-          <span className="font-heading text-base sm:text-xl font-medium text-charcoal-900 tracking-wide">
+          <span className="h-5 sm:h-6 w-px bg-ivory-100/30" aria-hidden="true" />
+          <span className="font-heading text-base sm:text-xl font-medium text-gold-400 tracking-wide">
             Астролог
           </span>
         </a>
