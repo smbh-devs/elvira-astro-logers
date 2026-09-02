@@ -1,12 +1,10 @@
-import { Mail } from 'lucide-react';
-
 export function Footer() {
   const scrollToForm = () => document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
 
   return (
     <footer className="bg-charcoal-900 text-ivory-100/70 py-10 sm:py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
-        <div className="grid sm:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-10">
+        <div className="mb-8 sm:mb-10">
           {/* Brand */}
           <div>
             <div className="inline-flex items-center gap-2 sm:gap-3 rounded-full bg-bordeaux-600/20 px-3 py-1.5 sm:px-4 sm:py-2 mb-3">
@@ -21,17 +19,6 @@ export function Footer() {
             <p className="text-xs sm:text-sm leading-relaxed">
               Персональные астрологические консультации. 12 лет практики, более 10 000 клиентов.
             </p>
-          </div>
-
-          {/* Contacts */}
-          <div>
-            <div className="text-ivory-100 font-medium mb-3 text-sm sm:text-base">Контакты</div>
-            <div className="space-y-2 text-xs sm:text-sm">
-              <div className="flex items-center gap-2">
-                <Mail size={16} className="text-gold-500" />
-                <span>elvira@astro-consult.ru</span>
-              </div>
-            </div>
           </div>
         </div>
 
