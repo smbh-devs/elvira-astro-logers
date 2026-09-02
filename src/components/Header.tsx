@@ -31,7 +31,7 @@ export function Header() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-14 sm:h-20 flex items-center justify-between">
-        <a href="#" className="inline-flex items-center gap-2 sm:gap-3 rounded-full bg-bordeaux-600/10 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-sm">
+        <a href="#" className="inline-flex items-center gap-2 sm:gap-3 rounded-full bg-bordeaux-600/20 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-sm">
           <span className="font-heading text-xl sm:text-2xl font-semibold text-charcoal-900 tracking-wide">
             Эльвира
           </span>
