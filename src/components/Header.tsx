@@ -1,15 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
 export function Header() {
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   const navLinks = [
     { label: 'Обо мне', href: '#about' },
@@ -22,14 +15,9 @@ export function Header() {
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Not sticky on purpose: sits over the top of the hero and scrolls away with the page.
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-ivory-100/95 backdrop-blur-md shadow-[0_1px_0_0_rgba(107,39,55,0.1)]'
-          : 'bg-ivory-100/70 backdrop-blur-sm'
-      }`}
-    >
+    <header className="absolute top-0 left-0 right-0 z-50 bg-ivory-100/70 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-14 sm:h-20 flex items-center justify-between">
         <a href="#" className="inline-flex items-center gap-2 sm:gap-3 rounded-full bg-bordeaux-600/80 px-3 py-1.5 sm:px-4 sm:py-2 backdrop-blur-sm shadow-sm">
           <span className="font-heading text-xl sm:text-2xl font-semibold text-ivory-100 tracking-wide">
