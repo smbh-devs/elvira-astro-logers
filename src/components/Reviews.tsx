@@ -6,6 +6,7 @@ const REVIEW_IMAGES = [
   { src: '/images/reviews/photo_2026-09-01_18.00.25.jpeg', alt: 'Скриншот отзыва клиента' },
   { src: '/images/reviews/photo_2026-09-01_18.00.27.jpeg', alt: 'Скриншот отзыва клиента' },
   { src: '/images/reviews/photo_2026-09-01_18.00.29.jpeg', alt: 'Скриншот отзыва клиента' },
+  { src: '/images/reviews/IMG_7009.JPG', alt: 'Скриншот отзыва клиента' },
 ];
 
 const REVIEWS = [
@@ -97,7 +98,7 @@ export function Reviews() {
               Отзывы клиентов
             </h3>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
             {REVIEW_IMAGES.map((reviewImage) => (
               <figure
                 key={reviewImage.src}
