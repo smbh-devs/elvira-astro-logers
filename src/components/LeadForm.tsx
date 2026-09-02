@@ -123,7 +123,7 @@ export function LeadForm() {
                     maxLength={10}
                     value={birthDate}
                     onChange={(e) => setBirthDate(formatBirthDate(e.target.value))}
-                    className="w-full px-4 sm:px-5 py-3.5 sm:py-4 bg-ivory-100 text-charcoal-900 rounded-xl text-base sm:text-lg placeholder:italic placeholder:text-charcoal-800/40 focus:outline-none focus:ring-2 focus:ring-gold-400 transition-all"
+                    className="w-full px-4 sm:px-5 py-3.5 sm:py-4 bg-ivory-100 text-charcoal-900 rounded-xl text-base sm:text-lg placeholder:text-charcoal-800/40 focus:outline-none focus:ring-2 focus:ring-gold-400 transition-all"
                   />
                   <p className="text-ivory-100/50 text-xs sm:text-sm mt-1.5 px-2">Дата рождения (по желанию)</p>
                 </div>
