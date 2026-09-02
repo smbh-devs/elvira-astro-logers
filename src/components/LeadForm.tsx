@@ -1,6 +1,25 @@
 import { useState } from 'react';
 import { Phone, CheckCircle, Loader2 } from 'lucide-react';
 import { submitLead } from '@/lib/leads';
+import { formatPhone, isValidPhone, normalizePhone, PHONE_MAX_LENGTH, PHONE_PLACEHOLDER } from '@/lib/phone';
+
+/** Keeps only digits and lays them out as ДД.ММ.ГГГГ while typing. */
+function formatBirthDate(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 8);
+  return [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 8)].filter(Boolean).join('.');
+}
+
+/** ДД.ММ.ГГГГ → YYYY-MM-DD for the `date` column; '' when empty; null when not a real date. */
+function toIsoDate(value: string): string | null {
+  if (!value) return '';
+  const match = value.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!match) return null;
+  const [, day, month, year] = match;
+  const date = new Date(Date.UTC(+year, +month - 1, +day));
+  const valid =
+    date.getUTCFullYear() === +year && date.getUTCMonth() === +month - 1 && date.getUTCDate() === +day;
+  return valid ? `${year}-${month}-${day}` : null;
+}
 
 export function LeadForm() {
   const [name, setName] = useState('');
@@ -16,9 +35,23 @@ export function LeadForm() {
       setError('Заполните имя и телефон');
       return;
     }
+    if (!isValidPhone(phone)) {
+      setError('Введите телефон в формате +7 (999) 123-45-67');
+      return;
+    }
+    const isoBirthDate = toIsoDate(birthDate);
+    if (isoBirthDate === null) {
+      setError('Дата рождения в формате 31.12.1999');
+      return;
+    }
     setLoading(true);
     setError('');
-    const result = await submitLead({ name, phone, birth_date: birthDate, source: 'lead_form' });
+    const result = await submitLead({
+      name,
+      phone: normalizePhone(phone),
+      birth_date: isoBirthDate,
+      source: 'lead_form',
+    });
     setLoading(false);
     if (result.success) {
       setSuccess(true);
@@ -69,19 +102,28 @@ export function LeadForm() {
                 <div>
                   <input
                     type="tel"
-                    placeholder="Телефон"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    placeholder={PHONE_PLACEHOLDER}
+                    maxLength={PHONE_MAX_LENGTH}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(formatPhone(e.target.value))}
                     className="w-full px-4 sm:px-5 py-3.5 sm:py-4 bg-ivory-100 text-charcoal-900 rounded-xl text-base sm:text-lg placeholder:text-charcoal-800/40 focus:outline-none focus:ring-2 focus:ring-gold-400 transition-all"
                     required
                   />
                 </div>
                 <div>
+                  {/* Plain text instead of type="date": iOS Safari ignores the container width for
+                      native date inputs and never shows a placeholder. */}
                   <input
-                    type="date"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="bday"
+                    placeholder="31.12.1999"
+                    maxLength={10}
                     value={birthDate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    className="w-full px-4 sm:px-5 py-3.5 sm:py-4 bg-ivory-100 text-charcoal-900 rounded-xl text-base sm:text-lg placeholder:text-charcoal-800/40 focus:outline-none focus:ring-2 focus:ring-gold-400 transition-all"
+                    onChange={(e) => setBirthDate(formatBirthDate(e.target.value))}
+                    className="w-full px-4 sm:px-5 py-3.5 sm:py-4 bg-ivory-100 text-charcoal-900 rounded-xl text-base sm:text-lg placeholder:italic placeholder:text-charcoal-800/40 focus:outline-none focus:ring-2 focus:ring-gold-400 transition-all"
                   />
                   <p className="text-ivory-100/50 text-xs sm:text-sm mt-1.5 px-2">Дата рождения (по желанию)</p>
                 </div>

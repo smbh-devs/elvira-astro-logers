@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Clock, Loader2, CheckCircle } from 'lucide-react';
 import { submitLead } from '@/lib/leads';
+import { formatPhone, isValidPhone, normalizePhone, PHONE_MAX_LENGTH, PHONE_PLACEHOLDER } from '@/lib/phone';
 import { useCountdown } from '@/hooks/useCountdown';
 
 export function ExitIntentPopup() {
@@ -48,9 +49,13 @@ export function ExitIntentPopup() {
       setError('Заполните имя и телефон');
       return;
     }
+    if (!isValidPhone(phone)) {
+      setError('Введите телефон в формате +7 (999) 123-45-67');
+      return;
+    }
     setLoading(true);
     setError('');
-    const result = await submitLead({ name, phone, source: 'exit_intent_popup' });
+    const result = await submitLead({ name, phone: normalizePhone(phone), source: 'exit_intent_popup' });
     setLoading(false);
     if (result.success) {
       setSuccess(true);
@@ -111,9 +116,12 @@ export function ExitIntentPopup() {
               />
               <input
                 type="tel"
-                placeholder="Телефон"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder={PHONE_PLACEHOLDER}
+                maxLength={PHONE_MAX_LENGTH}
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(formatPhone(e.target.value))}
                 className="w-full px-4 py-3.5 bg-ivory-50 text-charcoal-900 rounded-xl text-base placeholder:text-charcoal-800/40 focus:outline-none focus:ring-2 focus:ring-bordeaux-600/30 transition-all border border-bordeaux-600/10"
                 required
               />
