@@ -55,16 +55,16 @@ export function Hero() {
           </p>
         </div>
 
-        {/* Right: portrait */}
-        <div className="hidden md:flex justify-center items-center animate-fade-in">
-          <div className="relative">
+        {/* Right on md+: portrait. Below md it stacks under the CTA so phones still see the photo. */}
+        <div className="flex justify-center items-center animate-fade-in mt-2 md:mt-0">
+          <div className="relative w-full md:w-auto">
             <div className="absolute -inset-4 bg-bordeaux-600/5 rounded-[2rem] blur-2xl" />
             <img
               src={HERO_IMAGE}
               alt="Эльвира — астролог"
-              className="relative rounded-[2rem] shadow-2xl max-h-[600px] w-auto object-cover"
+              className="relative rounded-[1.5rem] md:rounded-[2rem] shadow-2xl w-full md:w-auto max-h-[440px] md:max-h-[600px] object-cover object-top"
             />
-            <div className="absolute -bottom-4 -left-4 bg-ivory-100 rounded-2xl shadow-lg px-5 py-3 flex items-center gap-3">
+            <div className="absolute bottom-3 left-3 md:-bottom-4 md:-left-4 bg-ivory-100 rounded-2xl shadow-lg px-4 py-2.5 md:px-5 md:py-3 flex items-center gap-3">
               <CheckCircle className="text-gold-500" size={24} />
               <div>
                 <div className="font-heading text-xl font-semibold text-bordeaux-600">10 000+</div>

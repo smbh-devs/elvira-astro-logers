@@ -1,8 +1,6 @@
-import { Phone, CheckCircle } from 'lucide-react';
+import { Phone } from 'lucide-react';
 
 const ABOUT_IMAGE = '/images/express/438da235-4155-43a2-8969-9a132ad51a53_(2).png';
-// Hero portrait: hidden inside the hero below md, so it is shown here instead on small screens.
-const HERO_PORTRAIT = '/images/express/188ae980-8d53-4c3d-a2f2-ff2ff84578bc.png';
 
 const EXPERT_GALLERY = [
   '/images/express/IMG_7651_(1).JPG',
@@ -23,8 +21,8 @@ export function About() {
     <section id="about" className="py-12 sm:py-24 bg-ivory-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-          {/* Photo */}
-          <div className="relative order-2 lg:order-1">
+          {/* Photo column: above the text on small screens, left column on lg+ */}
+          <div className="relative">
             <div className="absolute -inset-4 bg-gradient-to-tr from-gold-500/10 to-bordeaux-600/10 rounded-[2rem] blur-2xl" />
             <img
               src={ABOUT_IMAGE}
@@ -45,24 +43,7 @@ export function About() {
           </div>
 
           {/* Text */}
-          <div className="order-1 lg:order-2">
-            {/* Mobile-only portrait (the hero hides it below md) */}
-            <div className="relative mb-6 sm:mb-8 lg:hidden">
-              <div className="absolute -inset-3 bg-bordeaux-600/5 rounded-[2rem] blur-2xl" />
-              <img
-                src={HERO_PORTRAIT}
-                alt="Эльвира — астролог"
-                className="relative rounded-[1.5rem] sm:rounded-[2rem] shadow-xl w-full max-h-[420px] sm:max-h-[520px] object-cover object-top"
-              />
-              <div className="absolute bottom-3 left-3 bg-ivory-100 rounded-2xl shadow-lg px-4 py-2.5 flex items-center gap-2.5">
-                <CheckCircle className="text-gold-500" size={22} />
-                <div>
-                  <div className="font-heading text-lg font-semibold text-bordeaux-600 leading-tight">10 000+</div>
-                  <div className="text-xs text-charcoal-800/70">клиентов</div>
-                </div>
-              </div>
-            </div>
-
+          <div>
             <h2 className="font-heading text-2xl sm:text-4xl lg:text-5xl font-semibold text-charcoal-900 mb-5 sm:mb-6">
               Обо мне
             </h2>
