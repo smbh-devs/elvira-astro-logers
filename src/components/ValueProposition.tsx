@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react';
+import { scrollToForm } from '@/lib/scrollToForm';
 
 const VALUE_ITEMS = [
   'Разбор натальной карты по дате рождения',
@@ -8,8 +9,6 @@ const VALUE_ITEMS = [
 ];
 
 export function ValueProposition() {
-  const scrollToForm = () => document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
-
   return (
     <section className="py-12 sm:py-24 bg-ivory-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-8">
@@ -36,7 +35,7 @@ export function ValueProposition() {
 
             {/* Outline button */}
             <button
-              onClick={scrollToForm}
+              onClick={() => scrollToForm('value_proposition')}
               className="w-full sm:w-auto px-6 sm:px-7 py-3 sm:py-3.5 border-2 border-bordeaux-600 text-bordeaux-600 rounded-full text-base sm:text-lg font-medium hover:bg-bordeaux-600 hover:text-ivory-100 transition-all duration-300"
             >
               Записаться за 99 ₽

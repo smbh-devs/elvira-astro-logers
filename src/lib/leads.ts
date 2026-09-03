@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { reachGoal } from './metrika';
 
 export interface LeadData {
   name: string;
@@ -19,6 +20,9 @@ export async function submitLead(data: LeadData): Promise<{ success: boolean; er
     if (error) {
       return { success: false, error: 'Не удалось отправить заявку. Попробуйте ещё раз.' };
     }
+
+    // Conversion goal: fired once the lead is actually stored, for every form.
+    reachGoal('lead_submit', { source: data.source ?? 'unknown' });
 
     // Fire-and-forget copy to the Google Sheet via an Apps Script web app.
     // text/plain avoids a CORS preflight (Apps Script does not answer OPTIONS);

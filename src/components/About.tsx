@@ -1,4 +1,5 @@
 import { Phone } from 'lucide-react';
+import { scrollToForm } from '@/lib/scrollToForm';
 
 const ABOUT_IMAGE = '/images/express/438da235-4155-43a2-8969-9a132ad51a53_(2).png';
 
@@ -15,8 +16,6 @@ const STATS = [
 ];
 
 export function About() {
-  const scrollToForm = () => document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
-
   return (
     <section id="about" className="py-12 sm:py-24 bg-ivory-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
@@ -69,7 +68,7 @@ export function About() {
 
             {/* Compact button with phone icon */}
             <button
-              onClick={scrollToForm}
+              onClick={() => scrollToForm('about')}
               className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-bordeaux-600 text-ivory-100 rounded-full text-sm sm:text-base font-medium hover:bg-bordeaux-700 transition-all duration-300 shadow-md hover:shadow-lg"
             >
               <Phone size={18} />

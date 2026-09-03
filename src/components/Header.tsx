@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import { scrollToForm } from '@/lib/scrollToForm';
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -12,6 +13,10 @@ export function Header() {
 
   const scrollTo = (href: string) => {
     setMenuOpen(false);
+    if (href === '#form') {
+      scrollToForm('header');
+      return;
+    }
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
   };
 

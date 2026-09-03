@@ -1,8 +1,7 @@
 import { Shield } from 'lucide-react';
+import { scrollToForm } from '@/lib/scrollToForm';
 
 export function Guarantee() {
-  const scrollToForm = () => document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
-
   return (
     <section className="py-12 sm:py-20 bg-ivory-100">
       <div className="max-w-3xl mx-auto px-4 sm:px-8">
@@ -18,7 +17,7 @@ export function Guarantee() {
           </p>
           {/* Compact button with shield icon */}
           <button
-            onClick={scrollToForm}
+            onClick={() => scrollToForm('guarantee')}
             className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 border-2 border-bordeaux-600 text-bordeaux-600 rounded-full text-sm sm:text-base font-medium hover:bg-bordeaux-600 hover:text-ivory-100 transition-all duration-300"
           >
             <Shield size={18} />

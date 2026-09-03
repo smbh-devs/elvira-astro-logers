@@ -1,4 +1,5 @@
 import { Heart, Briefcase, CloudRain, Compass, ArrowRight } from 'lucide-react';
+import { scrollToForm } from '@/lib/scrollToForm';
 
 const PAINS = [
   {
@@ -24,8 +25,6 @@ const PAINS = [
 ];
 
 export function PainPoints() {
-  const scrollToForm = () => document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
-
   return (
     <section className="py-12 sm:py-24 bg-ivory-100">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
@@ -58,7 +57,7 @@ export function PainPoints() {
         {/* Text link with arrow — most subtle CTA on page */}
         <div className="text-center">
           <button
-            onClick={scrollToForm}
+            onClick={() => scrollToForm('pain_points')}
             className="inline-flex items-center gap-2 text-bordeaux-600 hover:text-bordeaux-700 text-base sm:text-lg font-medium group transition-colors"
           >
             Оставить заявку

@@ -1,9 +1,8 @@
 import { useCountdown } from '@/hooks/useCountdown';
+import { scrollToForm } from '@/lib/scrollToForm';
 
 export function FinalCTA() {
   const { formatted } = useCountdown(5 * 3600 + 59 * 60 + 12);
-  const scrollToForm = () => document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
-
   return (
     <section className="py-12 sm:py-24 bg-ivory-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-8 text-center">
@@ -19,7 +18,7 @@ export function FinalCTA() {
 
         {/* Full-width button */}
         <button
-          onClick={scrollToForm}
+          onClick={() => scrollToForm('final_cta')}
           className="w-full sm:w-auto sm:min-w-[400px] px-6 sm:px-8 py-3.5 sm:py-4 bg-bordeaux-600 text-ivory-100 rounded-full text-base sm:text-lg font-semibold hover:bg-bordeaux-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
         >
           Записаться сейчас

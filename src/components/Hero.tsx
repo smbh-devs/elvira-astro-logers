@@ -1,11 +1,10 @@
 import { Phone, Clock, CheckCircle } from 'lucide-react';
+import { scrollToForm } from '@/lib/scrollToForm';
 
 const HERO_IMAGE = '/images/express/188ae980-8d53-4c3d-a2f2-ff2ff84578bc.png';
 const HERO_BG_IMAGE = '/images/express/f661eae8-f96e-46ce-b139-4c8d573d3def_(1).png';
 
 export function Hero() {
-  const scrollToForm = () => document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
-
   return (
     <section className="relative pt-14 sm:pt-20 min-h-screen flex items-center overflow-hidden">
       {/* Background image full-width, focal point shifted left */}
@@ -43,7 +42,7 @@ export function Hero() {
 
           {/* Main CTA — largest on page */}
           <button
-            onClick={scrollToForm}
+            onClick={() => scrollToForm('hero')}
             className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-bordeaux-600 text-ivory-100 rounded-full text-base sm:text-lg font-semibold hover:bg-bordeaux-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
           >
             Записаться на консультацию за 99 ₽

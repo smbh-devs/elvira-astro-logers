@@ -1,4 +1,5 @@
 import { Heart, Coins, Compass, TrendingUp } from 'lucide-react';
+import { scrollToForm } from '@/lib/scrollToForm';
 
 const TOPICS = [
   {
@@ -24,8 +25,6 @@ const TOPICS = [
 ];
 
 export function Topics() {
-  const scrollToForm = () => document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
-
   return (
     <section className="py-12 sm:py-24 bg-ivory-100">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
@@ -55,7 +54,7 @@ export function Topics() {
                 </p>
                 {/* Pill button */}
                 <button
-                  onClick={scrollToForm}
+                  onClick={() => scrollToForm('topics')}
                   className="self-start px-4 sm:px-5 py-2 bg-bordeaux-600/10 text-bordeaux-600 rounded-full text-sm font-medium hover:bg-bordeaux-600 hover:text-ivory-100 transition-all duration-300"
                 >
                   Выбрать тему

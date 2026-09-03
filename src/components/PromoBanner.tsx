@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Sparkles } from 'lucide-react';
+import { scrollToForm } from '@/lib/scrollToForm';
 
 export function PromoBanner() {
   const [visible, setVisible] = useState(false);
@@ -20,15 +21,13 @@ export function PromoBanner() {
     return () => window.removeEventListener('scroll', onScroll);
   }, [visible, dismissed]);
 
-  const scrollToForm = () => document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
-
   if (!visible || dismissed) return null;
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[60] bg-bordeaux-600 text-ivory-100 animate-slide-down">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-2.5 flex items-center justify-between gap-3">
         <button
-          onClick={scrollToForm}
+          onClick={() => scrollToForm('promo_banner')}
           className="flex items-center gap-2 text-sm sm:text-base font-medium hover:text-gold-400 transition-colors text-left"
         >
           <Sparkles size={16} className="text-gold-400 flex-shrink-0" />

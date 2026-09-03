@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown, ArrowRight } from 'lucide-react';
+import { scrollToForm } from '@/lib/scrollToForm';
 
 const FAQ_ITEMS = [
   {
@@ -34,8 +35,6 @@ const FAQ_ITEMS = [
 
 export function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
-  const scrollToForm = () => document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
-
   return (
     <section className="py-12 sm:py-24 bg-ivory-50">
       <div className="max-w-3xl mx-auto px-4 sm:px-8">
@@ -79,7 +78,7 @@ export function FAQ() {
         {/* Text link with arrow */}
         <div className="text-center mt-8 sm:mt-10">
           <button
-            onClick={scrollToForm}
+            onClick={() => scrollToForm('faq')}
             className="inline-flex items-center gap-2 text-bordeaux-600 hover:text-bordeaux-700 text-base sm:text-lg font-medium group transition-colors"
           >
             Не нашли ответ — задайте вопрос

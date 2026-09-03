@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
+import { scrollToForm as scrollToLeadForm } from '@/lib/scrollToForm';
 
 export function ChatWidget() {
   const [visible, setVisible] = useState(false);
@@ -12,7 +13,7 @@ export function ChatWidget() {
 
   const scrollToForm = () => {
     setOpen(false);
-    document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
+    scrollToLeadForm('chat_widget');
   };
 
   if (!visible) return null;

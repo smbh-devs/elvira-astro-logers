@@ -1,4 +1,5 @@
 import { Star, Quote, Image as ImageIcon } from 'lucide-react';
+import { scrollToForm } from '@/lib/scrollToForm';
 
 const REVIEW_IMAGES = [
   { src: '/images/reviews/photo_2026-09-01_18.00.21.jpeg', alt: 'Скриншот отзыва клиента' },
@@ -62,8 +63,6 @@ function ReviewCard({ review }: { review: typeof REVIEWS[number] }) {
 }
 
 export function Reviews() {
-  const scrollToForm = () => document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth' });
-
   return (
     <section id="reviews" className="py-12 sm:py-24 bg-ivory-100">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
@@ -117,7 +116,7 @@ export function Reviews() {
 
         <div className="text-center">
           <button
-            onClick={scrollToForm}
+            onClick={() => scrollToForm('reviews')}
             className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-bordeaux-600/10 text-bordeaux-600 rounded-full text-sm sm:text-base font-medium hover:bg-bordeaux-600/20 transition-all duration-300"
           >
             Хочу такой же результат — записаться
