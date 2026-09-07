@@ -29,6 +29,11 @@ export function LeadForm() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
+  // The button stays disabled until the form would pass validation, so a
+  // click can only ever be a real submission (Metrika's form auto-goal counts
+  // every click on a submit button, including ones that fail validation).
+  const canSubmit = !loading && name.trim() !== '' && isValidPhone(phone) && toIsoDate(birthDate) !== null;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim()) {
@@ -135,8 +140,9 @@ export function LeadForm() {
                 {/* Largest, most saturated button on the site */}
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full px-6 sm:px-8 py-3.5 sm:py-4 bg-gold-500 text-charcoal-900 rounded-full text-base sm:text-lg font-bold hover:bg-gold-400 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  disabled={!canSubmit}
+                  title={canSubmit ? undefined : 'Заполните имя и телефон'}
+                  className="w-full px-6 sm:px-8 py-3.5 sm:py-4 bg-gold-500 text-charcoal-900 rounded-full text-base sm:text-lg font-bold hover:bg-gold-400 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-gold-500 disabled:hover:shadow-lg disabled:hover:scale-100 flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>

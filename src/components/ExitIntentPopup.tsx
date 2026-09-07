@@ -43,6 +43,10 @@ export function ExitIntentPopup() {
     };
   }, [dismissed]);
 
+  // Same rule as LeadForm: no clickable button until the data would pass
+  // validation, so Metrika's form auto-goal only sees real submissions.
+  const canSubmit = !loading && name.trim() !== '' && isValidPhone(phone);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim()) {
@@ -128,8 +132,9 @@ export function ExitIntentPopup() {
               {error && <p className="text-bordeaux-600 text-sm text-center">{error}</p>}
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full px-6 py-4 bg-bordeaux-600 text-ivory-100 rounded-full text-base sm:text-lg font-semibold hover:bg-bordeaux-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-60 flex items-center justify-center gap-2"
+                disabled={!canSubmit}
+                title={canSubmit ? undefined : 'Заполните имя и телефон'}
+                className="w-full px-6 py-4 bg-bordeaux-600 text-ivory-100 rounded-full text-base sm:text-lg font-semibold hover:bg-bordeaux-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-bordeaux-600 disabled:hover:shadow-lg flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
