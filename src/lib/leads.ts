@@ -24,18 +24,20 @@ export async function submitLead(data: LeadData): Promise<{ success: boolean; er
     // Conversion goal: fired once the lead is actually stored, for every form.
     reachGoal('lead_submit', { source: data.source ?? 'unknown' });
 
-    // Fire-and-forget notifications (Google Sheet row + Telegram) via the
-    // `notify-lead` edge function. The lead is already in Supabase, so a failure
-    // here must not affect the visitor: errors are logged by the function itself.
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    if (supabaseUrl) {
-      fetch(`${supabaseUrl}/functions/v1/notify-lead`, {
+    // Fire-and-forget copy to the Google Sheet via an Apps Script web app.
+    // text/plain avoids a CORS preflight (Apps Script does not answer OPTIONS);
+    // no-cors makes the response opaque, which is fine: the row is already in Supabase.
+    const sheetsUrl = import.meta.env.VITE_SHEETS_WEBHOOK_URL;
+    if (sheetsUrl) {
+      fetch(sheetsUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           name: data.name,
           phone: data.phone,
           birth_date: data.birth_date || '',
+          submitted_at: new Date().toISOString(),
         }),
       }).catch(() => {});
     }
