@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Clock, Loader2, CheckCircle } from 'lucide-react';
 import { submitLead } from '@/lib/leads';
+import { reachGoal } from '@/lib/metrika';
 import { formatPhone, isValidPhone, normalizePhone, PHONE_MAX_LENGTH, PHONE_PLACEHOLDER } from '@/lib/phone';
 import { useCountdown } from '@/hooks/useCountdown';
 
@@ -60,6 +61,11 @@ export function ExitIntentPopup() {
     setLoading(true);
     setError('');
     const result = await submitLead({ name, phone: normalizePhone(phone), source: 'exit_intent_popup' });
+    if (result.success && result.redirectUrl) {
+      reachGoal('payment_redirect', { source: 'exit_intent_popup' });
+      window.location.assign(result.redirectUrl);
+      return; // keep the spinner until the browser navigates away
+    }
     setLoading(false);
     if (result.success) {
       setSuccess(true);

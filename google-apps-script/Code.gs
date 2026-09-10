@@ -1,172 +1,87 @@
 /** @OnlyCurrentDoc */
 
+// Точка входа веб-приложения. Kvaligate — в Kvaligate.gs, Telegram — в Telegram.gs,
+// служебные функции для запуска из редактора — в Setup.gs. Все файлы делят одну область видимости.
+
 // Лист с заявками (куда пишет форма) и лист со списком получателей в Telegram.
 const LEADS_SHEET = 'Заявки';
 const RECIPIENTS_SHEET = 'Telegram';
 const TIMEZONE = 'Europe/Moscow';
 
-// Токен бота хранится в свойствах скрипта, а не в таблице:
-// Настройки проекта (шестерёнка) → Свойства скрипта → TELEGRAM_BOT_TOKEN.
-function getBotToken() {
-  return PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
+// Лист с заказами Kvaligate и лист с подтверждёнными оплатами.
+const ORDERS_SHEET = 'Заказы';
+const PAYMENTS_SHEET = 'Оплаты';
+
+// Оплата консультации. Сумма в API Kvaligate — в копейках.
+const PRICE_KOPECKS = 9900;
+
+// Единственная точка входа с сайта. Тело — JSON в text/plain (простой CORS-запрос без preflight).
+//   { action: 'lead',  name, phone, birth_date, source, submitted_at } → { ok, order_id, redirect_url }
+//   { action: 'check', order_id }                                      → { ok, state }
+// Без action — старый формат заявки, ведёт себя как 'lead'.
+function doPost(e) {
+  let data;
+  try {
+    data = JSON.parse(e.postData.contents);
+  } catch (err) {
+    return jsonOut({ ok: false, error: 'Invalid JSON' });
+  }
+  try {
+    if (data.action === 'check') return jsonOut(checkOrder(String(data.order_id || '')));
+    return jsonOut(handleLead(data));
+  } catch (err) {
+    console.error('doPost failed: ' + err + (err.stack ? '\n' + err.stack : ''));
+    return jsonOut({ ok: false, error: String(err) });
+  }
 }
 
-function doPost(e) {
-  const data = JSON.parse(e.postData.contents);
+function handleLead(data) {
+  const name = String(data.name || '').trim().slice(0, 200);
+  const phone = String(data.phone || '').trim().slice(0, 50);
+  const birthDate = String(data.birth_date || '').trim().slice(0, 10);
+  const submittedAt = data.submitted_at || new Date().toISOString();
+  if (!name || !phone) return { ok: false, error: 'Missing fields' };
+
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(LEADS_SHEET) || ss.getSheets()[0];
-  sheet.appendRow([data.name, data.phone, data.birth_date, data.submitted_at]);
+  sheet.appendRow([name, phone, birthDate, submittedAt]);
+  const leadRow = sheet.getLastRow();
+
+  // Заказ создаём до уведомления: клиент ждёт redirect_url, Telegram может подождать.
+  let order = null;
+  try {
+    order = createOrder({ name: name, phone: phone, birthDate: birthDate, source: String(data.source || ''), leadRow: leadRow });
+  } catch (err) {
+    console.error('Kvaligate order failed: ' + err);
+  }
 
   // Уведомления не должны ломать запись заявки: любая ошибка только в лог.
   try {
-    notifyTelegram(formatLeadMessage(data, sheet.getLastRow()));
+    notifyTelegram(formatLeadMessage({ name: name, phone: phone, birth_date: birthDate, submitted_at: submittedAt }, leadRow));
   } catch (err) {
     console.error('Telegram notify failed: ' + err);
   }
 
-  return ContentService.createTextOutput(JSON.stringify({ ok: true }))
+  return { ok: true, order_id: order ? order.id : null, redirect_url: order ? order.redirectUrl : null };
+}
+
+// Проверка с сайта после возврата с оплаты. Блокировка — чтобы вызов с сайта и
+// триггер sweepPendingOrders не обновили один заказ одновременно и не отправили два уведомления.
+function checkOrder(orderId) {
+  if (!/^elv_[0-9a-f]{20}$/.test(orderId)) return { ok: false, error: 'Bad order_id' };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sheet = getOrdersSheet();
+    const found = findOrder(sheet, orderId);
+    if (!found) return { ok: false, error: 'Not found' };
+    return { ok: true, state: refreshOrder(sheet, found) };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function jsonOut(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
-}
-
-// Лист "Telegram": колонка A — chat ID, колонка B — кто это (для себя),
-// колонка C — если стоит FALSE (снятый чекбокс), получатель пропускается.
-// Первая строка — заголовки.
-function getRecipients() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(RECIPIENTS_SHEET);
-  if (!sheet || sheet.getLastRow() < 2) return [];
-  return sheet
-    .getRange(2, 1, sheet.getLastRow() - 1, 3)
-    .getValues()
-    .filter(row => row[2] !== false)
-    .map(row => String(row[0]).trim())
-    .filter(id => /^-?\d+$/.test(id));
-}
-
-function notifyTelegram(text) {
-  const token = getBotToken();
-  if (!token) {
-    console.error('TELEGRAM_BOT_TOKEN is not set in Script Properties');
-    return;
-  }
-  const recipients = getRecipients();
-  if (recipients.length === 0) {
-    console.warn('No Telegram recipients on sheet "' + RECIPIENTS_SHEET + '"');
-    return;
-  }
-
-  const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
-  recipients.forEach(chatId => {
-    const response = UrlFetchApp.fetch(url, {
-      method: 'post',
-      contentType: 'application/json',
-      payload: JSON.stringify({
-        chat_id: chatId,
-        text: text,
-        parse_mode: 'HTML',
-        disable_web_page_preview: true,
-      }),
-      muteHttpExceptions: true,
-    });
-    if (response.getResponseCode() !== 200) {
-      // 403 — пользователь не нажал Start у бота или заблокировал его.
-      console.error('sendMessage to ' + chatId + ' failed: ' + response.getContentText());
-    }
-  });
-}
-
-function formatLeadMessage(data, rowNumber) {
-  const lines = [
-    '📩 <b>Новая заявка</b>',
-    '',
-    '👤 ' + escapeHtml(data.name || '—'),
-    '📞 ' + escapeHtml(data.phone || '—'),
-  ];
-  if (data.birth_date) lines.push('🎂 ' + escapeHtml(formatBirthDate(data.birth_date)));
-  lines.push('🕒 ' + escapeHtml(formatSubmittedAt(data.submitted_at)));
-  if (rowNumber) lines.push('', '<i>Строка ' + rowNumber + ' в таблице</i>');
-  return lines.join('\n');
-}
-
-function formatBirthDate(value) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value));
-  return m ? m[3] + '.' + m[2] + '.' + m[1] : String(value);
-}
-
-function formatSubmittedAt(value) {
-  const date = new Date(value);
-  if (isNaN(date.getTime())) return String(value || '—');
-  return Utilities.formatDate(date, TIMEZONE, 'dd.MM.yyyy HH:mm') + ' (МСК)';
-}
-
-function escapeHtml(value) {
-  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-// ---- Служебные функции: запускать вручную из редактора (Выполнить → выбрать функцию) ----
-
-// Создаёт лист "Telegram" с заголовками, чекбоксами и стартовым списком получателей.
-// Если лист уже есть — только дописывает недостающие ID.
-function setupTelegramSheet() {
-  const seed = [
-    ['731708341', 'Руслан'],
-    ['7897855088', 'Никита'],
-  ];
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(RECIPIENTS_SHEET);
-  if (!sheet) {
-    sheet = ss.insertSheet(RECIPIENTS_SHEET);
-    sheet.getRange(1, 1, 1, 3).setValues([['Chat ID', 'Кто', 'Активен']]).setFontWeight('bold');
-    sheet.setFrozenRows(1);
-    sheet.getRange('A:A').setNumberFormat('@');
-    sheet.setColumnWidth(2, 200);
-  }
-  const existing = sheet.getLastRow() > 1
-    ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().map(r => String(r[0]).trim())
-    : [];
-  seed.filter(([id]) => existing.indexOf(id) === -1).forEach(([id, who]) => {
-    const row = sheet.getLastRow() + 1;
-    sheet.getRange(row, 1, 1, 2).setValues([[id, who]]);
-    sheet.getRange(row, 3).insertCheckboxes().check();
-  });
-  console.log('Получатели: ' + getRecipients().join(', '));
-}
-
-// Проверка настройки: отправит тестовое сообщение всем получателям.
-// Первый запуск попросит разрешение на внешние запросы — это нужно сделать до деплоя.
-function testTelegram() {
-  const token = getBotToken();
-  if (!token) throw new Error('TELEGRAM_BOT_TOKEN is not set in Script Properties');
-  const me = JSON.parse(UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/getMe', {
-    muteHttpExceptions: true,
-  }).getContentText());
-  if (!me.ok) throw new Error('Token is rejected by Telegram: ' + JSON.stringify(me));
-  console.log('Bot: @' + me.result.username + ' (id ' + me.result.id + ')');
-  console.log('Recipients: ' + (getRecipients().join(', ') || 'none'));
-  notifyTelegram(formatLeadMessage({
-    name: 'Тест',
-    phone: '+70000000000',
-    birth_date: '1990-01-01',
-    submitted_at: new Date().toISOString(),
-  }, null));
-}
-
-// Показывает chat ID всех, кто недавно написал боту (посмотреть в логе выполнения).
-// Пользователь должен сначала отправить боту любое сообщение (например, /start).
-function printChatIds() {
-  const token = getBotToken();
-  if (!token) throw new Error('TELEGRAM_BOT_TOKEN is not set in Script Properties');
-  const response = UrlFetchApp.fetch('https://api.telegram.org/bot' + token + '/getUpdates', {
-    muteHttpExceptions: true,
-  });
-  const updates = JSON.parse(response.getContentText()).result || [];
-  const seen = {};
-  updates.forEach(u => {
-    const chat = (u.message || u.edited_message || {}).chat;
-    if (chat && !seen[chat.id]) {
-      seen[chat.id] = true;
-      console.log(chat.id + ' — ' + [chat.first_name, chat.last_name, chat.username && '@' + chat.username, chat.title]
-        .filter(Boolean).join(' '));
-    }
-  });
-  if (Object.keys(seen).length === 0) console.log('Нет сообщений: напишите боту /start и запустите снова');
 }

@@ -2,8 +2,9 @@
 
 Лендинг «Эльвира | Астролог», хостится на GitHub Pages под доменом `elviraastrologers.com`.
 
-Стек: Vite + React + TypeScript + Tailwind. Заявки уходят в Supabase (таблица `leads`)
-и параллельно, напрямую из браузера, в Google-таблицу через веб-приложение Apps Script.
+Стек: Vite + React + TypeScript + Tailwind, бэкенда нет: единственный сервер — веб-приложение
+Apps Script в Google-таблице. Оно записывает заявку, создаёт заказ на 99 ₽ в Kvaligate (СБП),
+проверяет оплату и шлёт уведомления в Telegram (см. «Оплата»).
 
 ## Локально
 
@@ -14,14 +15,13 @@ npm run typecheck  # tsc
 npm run build      # сборка в dist/
 ```
 
-Нужен `.env` с `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` и `VITE_SHEETS_WEBHOOK_URL`
-(см. `.env.example`).
+Нужен `.env` с `VITE_SHEETS_WEBHOOK_URL` (см. `.env.example`).
 
 ## Деплой
 
 Пуш в `main` запускает `.github/workflows/deploy.yml`: сборка и публикация `dist/` на Pages.
-Переменные сборки лежат в Settings → Secrets and variables → Actions → Variables:
-`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SHEETS_WEBHOOK_URL`.
+Переменная сборки лежит в Settings → Secrets and variables → Actions → Variables:
+`VITE_SHEETS_WEBHOOK_URL`.
 
 `public/CNAME` задаёт домен, `public/.nojekyll` отключает Jekyll.
 
@@ -41,9 +41,14 @@ npm run build      # сборка в dist/
 
 ## Заявки → Google-таблица
 
-1. В таблице: Расширения → Apps Script, вставить содержимое
-   [`google-apps-script/Code.gs`](google-apps-script/Code.gs). Лист с заявками должен
-   называться `Заявки` (иначе скрипт пишет в первый лист).
+1. В таблице: Расширения → Apps Script. Проект состоит из четырёх файлов, в редакторе
+   создать их через «+» → «Скрипт» с теми же именами и вставить содержимое каждого:
+   [`Code.gs`](google-apps-script/Code.gs) (точка входа `doPost`),
+   [`Kvaligate.gs`](google-apps-script/Kvaligate.gs) (оплата),
+   [`Telegram.gs`](google-apps-script/Telegram.gs) (уведомления),
+   [`Setup.gs`](google-apps-script/Setup.gs) (функции для запуска из редактора).
+   Файлы делят одну область видимости, импортов нет. Лист с заявками должен называться
+   `Заявки` (иначе скрипт пишет в первый лист).
 2. Развернуть → Новое развертывание → Веб-приложение. **Выполнять от имени: я**,
    **у кого есть доступ: все** (не «все с аккаунтом Google», иначе будет 401).
 3. URL вида `https://script.google.com/macros/s/…/exec` положить в переменную Actions
@@ -73,11 +78,63 @@ Apps Script → Выполнения.
 Проверка без браузера:
 
 ```
-curl -L -X POST "$VITE_SHEETS_WEBHOOK_URL" -H 'Content-Type: text/plain' \
-  -d '{"name":"ТЕСТ","phone":"+70000000000","birth_date":"","submitted_at":"2026-01-01T00:00:00Z"}'
+# Без -X POST: Apps Script отвечает 302, и на редиректе нужен GET (как делает браузер);
+# явный -X POST заставил бы curl повторить POST и получить 405.
+curl -sL "$VITE_SHEETS_WEBHOOK_URL" -H 'Content-Type: text/plain' \
+  --data '{"action":"lead","name":"ТЕСТ","phone":"+70000000000","birth_date":"","source":"curl","submitted_at":"2026-01-01T00:00:00Z"}'
 ```
 
-Ответ `{"ok":true}` и новая строка в таблице.
+Ответ `{"ok":true,"order_id":"elv_…","redirect_url":"https://app.kvaligate.com/…"}` и новые строки
+на листах `Заявки` и `Заказы`. `redirect_url: null` — заявка записана, а заказ в Kvaligate не
+создался, причина в Apps Script → Выполнения.
 
-Edge-функция `supabase/functions/lead-to-sheets` осталась как альтернативный путь
-(нужен секрет `GOOGLE_SHEETS_WEBHOOK_URL` в Supabase), фронт её сейчас не вызывает.
+
+## Оплата (Kvaligate, СБП)
+
+Поток: форма → `doPost` с `action: "lead"` пишет строку на лист `Заявки`, создаёт заказ в
+Kvaligate (`POST /psp/payment-widget/register`, подпись RSA-SHA256 приватным ключом через
+`Utilities.computeRsaSha256Signature`) и отдаёт `redirect_url` → браузер уходит на страницу
+оплаты → Kvaligate возвращает клиента на `/?payment=success|error&order=elv_…` → компонент
+`PaymentResult` шлёт `action: "check"`. Если заказ создать не удалось, заявка всё равно
+записана, клиент видит обычное «Заявка отправлена».
+
+Статус узнаётся повторным `register` с тем же телом запроса (оно хранится на листе `Заказы`;
+у виджета нет отдельного статус-эндпоинта, повтор с тем же `id` не создаёт заказ). При
+переходе в `paid` скрипт один раз добавляет строку на лист `Оплаты` и шлёт «💰 Оплата» в
+Telegram. Вебхук Kvaligate не используется: API общий с другим сайтом, URL нотификаций там
+один на API.
+
+Клиентов, которые оплатили в банке и не вернулись на сайт, добирает триггер
+`sweepPendingOrders` раз в 10 минут: перепроверяет незавершённые заказы за последние 24 часа.
+
+Запрос с сайта идёт как `POST` с `text/plain`: это «простой» CORS-запрос без preflight
+(Apps Script не отвечает на `OPTIONS`), а ответ после редиректа читается.
+
+### Настройка
+
+1. Свойства скрипта (Настройки проекта → Свойства скрипта):
+
+   | Свойство | Значение |
+   |----------|----------|
+   | `KVALIGATE_POINT` | id API в кабинете Kvaligate (Мерчанты → API) |
+   | `KVALIGATE_PRIVATE_KEY` | приватный ключ API в PKCS#8; переносы строк можно не сохранять, скрипт соберёт PEM сам |
+   | `KVALIGATE_SERVICE` | id тарифа, по умолчанию `3` |
+   | `KVALIGATE_API_URL` | по умолчанию `https://app.kvaligate.com` |
+   | `SITE_URL` | по умолчанию `https://elviraastrologers.com`, куда Kvaligate возвращает клиента |
+
+   Кабинет выдаёт ключ в PKCS#1 (`BEGIN RSA PRIVATE KEY`), Apps Script ждёт PKCS#8:
+
+   ```
+   openssl pkcs8 -topk8 -nocrypt -in private.pem -out private_pkcs8.pem
+   ```
+
+2. Запустить `testKvaligate` из редактора: создаст заказ на 99 ₽ и запросит его статус.
+   В логе должно быть `OK: подпись принята`. Заказ оплачивать не нужно, он сам перейдёт в
+   `expired`.
+3. Запустить `setupPaymentTrigger`: создаст триггер `sweepPendingOrders` каждые 10 минут.
+4. Развернуть новую версию (см. выше) и сделать боевой платёж на 99 ₽ с сайта: строка на
+   листе `Оплаты` и сообщение в Telegram.
+
+Sandbox у Kvaligate нет, проверка только боевым платежом. Сумма в API в копейках
+(99 ₽ = 9900). Карточный эквайринг на этом мерчанте не работает, поэтому `source` всегда `SBP`.
+Листы `Заказы` и `Оплаты` скрипт создаёт сам при первом заказе и первой оплате.

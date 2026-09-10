@@ -14,6 +14,7 @@ import { Footer } from '@/components/Footer';
 import { ChatWidget } from '@/components/ChatWidget';
 import { PromoBanner } from '@/components/PromoBanner';
 import { ExitIntentPopup } from '@/components/ExitIntentPopup';
+import { PaymentResult } from '@/components/PaymentResult';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
       <Footer />
       <ChatWidget />
       <ExitIntentPopup />
+      <PaymentResult />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Phone, CheckCircle, Loader2 } from 'lucide-react';
 import { submitLead } from '@/lib/leads';
+import { reachGoal } from '@/lib/metrika';
 import { formatPhone, isValidPhone, normalizePhone, PHONE_MAX_LENGTH, PHONE_PLACEHOLDER } from '@/lib/phone';
 
 /** Keeps only digits and lays them out as ДД.ММ.ГГГГ while typing. */
@@ -57,6 +58,12 @@ export function LeadForm() {
       birth_date: isoBirthDate,
       source: 'lead_form',
     });
+    if (result.success && result.redirectUrl) {
+      // Off to the Kvaligate SBP page; the client comes back to /?payment=…&order=… (see PaymentResult).
+      reachGoal('payment_redirect', { source: 'lead_form' });
+      window.location.assign(result.redirectUrl);
+      return; // keep the spinner until the browser navigates away
+    }
     setLoading(false);
     if (result.success) {
       setSuccess(true);
@@ -147,7 +154,7 @@ export function LeadForm() {
                   {loading ? (
                     <>
                       <Loader2 size={20} className="animate-spin" />
-                      Отправляем...
+                      Переходим к оплате...
                     </>
                   ) : (
                     <>
