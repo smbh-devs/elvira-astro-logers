@@ -99,7 +99,7 @@ export function ExitIntentPopup() {
               Заявка отправлена!
             </h3>
             <p className="text-charcoal-800/70 text-base sm:text-lg">
-              Я перезвоню вам в течение 15 минут
+              Я позвоню вам после оплаты
             </p>
           </div>
         ) : (
@@ -112,7 +112,7 @@ export function ExitIntentPopup() {
               Стоп! Ваша скидка 99 ₽ действует ещё немного
             </h3>
             <p className="text-charcoal-800/70 text-sm sm:text-base mb-6">
-              Оставьте имя и телефон — я перезвоню в течение 15 минут
+              Оставьте имя и телефон, оплатите 99 ₽ — и я позвоню вам на этот номер
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -148,7 +148,7 @@ export function ExitIntentPopup() {
                     Отправляем...
                   </>
                 ) : (
-                  'Записаться за 99 ₽'
+                  'Оставить заявку на звонок за 99 ₽'
                 )}
               </button>
             </form>

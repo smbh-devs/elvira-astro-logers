@@ -16,7 +16,7 @@ const PAYMENTS_SHEET = 'Оплаты';
 const PRICE_KOPECKS = 9900;
 
 // Единственная точка входа с сайта. Тело — JSON в text/plain (простой CORS-запрос без preflight).
-//   { action: 'lead',  name, phone, birth_date, source, submitted_at } → { ok, order_id, redirect_url }
+//   { action: 'lead',  name, phone, topic, call_time, birth_date, source, submitted_at } → { ok, order_id, redirect_url }
 //   { action: 'check', order_id }                                      → { ok, state }
 // Без action — старый формат заявки, ведёт себя как 'lead'.
 function doPost(e) {
@@ -39,12 +39,15 @@ function handleLead(data) {
   const name = String(data.name || '').trim().slice(0, 200);
   const phone = String(data.phone || '').trim().slice(0, 50);
   const birthDate = String(data.birth_date || '').trim().slice(0, 10);
+  const topic = String(data.topic || '').trim().slice(0, 100);
+  const callTime = String(data.call_time || '').trim().slice(0, 100);
   const submittedAt = data.submitted_at || new Date().toISOString();
   if (!name || !phone) return { ok: false, error: 'Missing fields' };
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(LEADS_SHEET) || ss.getSheets()[0];
-  sheet.appendRow([name, phone, birthDate, submittedAt]);
+  // Тема и время дописаны в конец строки, чтобы не сдвигать колонки уже заполненных заявок.
+  sheet.appendRow([name, phone, birthDate, submittedAt, topic, callTime]);
   const leadRow = sheet.getLastRow();
 
   // Заказ создаём до уведомления: клиент ждёт redirect_url, Telegram может подождать.
@@ -57,7 +60,10 @@ function handleLead(data) {
 
   // Уведомления не должны ломать запись заявки: любая ошибка только в лог.
   try {
-    notifyTelegram(formatLeadMessage({ name: name, phone: phone, birth_date: birthDate, submitted_at: submittedAt }, leadRow));
+    notifyTelegram(formatLeadMessage({
+      name: name, phone: phone, topic: topic, call_time: callTime,
+      birth_date: birthDate, submitted_at: submittedAt,
+    }, leadRow));
   } catch (err) {
     console.error('Telegram notify failed: ' + err);
   }

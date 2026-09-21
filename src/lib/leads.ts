@@ -4,6 +4,10 @@ import { callSheetsApi } from './sheetsApi';
 export interface LeadData {
   name: string;
   phone: string;
+  /** Тема разговора; обязательна в форме на странице, пустая в коротких формах. */
+  topic?: string;
+  /** Когда звонить: «Готова поговорить сейчас» либо выбранный интервал. */
+  call_time?: string;
   birth_date?: string;
   source?: string;
 }
@@ -29,6 +33,8 @@ export async function submitLead(data: LeadData): Promise<SubmitLeadResult> {
       action: 'lead',
       name: data.name,
       phone: data.phone,
+      topic: data.topic || '',
+      call_time: data.call_time || '',
       birth_date: data.birth_date || '',
       source: data.source || '',
       submitted_at: new Date().toISOString(),

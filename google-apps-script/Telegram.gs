@@ -59,6 +59,8 @@ function formatLeadMessage(data, rowNumber) {
     '👤 ' + escapeHtml(data.name || '—'),
     '📞 ' + escapeHtml(data.phone || '—'),
   ];
+  if (data.topic) lines.push('💬 ' + escapeHtml(data.topic));
+  if (data.call_time) lines.push('📅 ' + escapeHtml(data.call_time));
   if (data.birth_date) lines.push('🎂 ' + escapeHtml(formatBirthDate(data.birth_date)));
   lines.push('🕒 ' + escapeHtml(formatSubmittedAt(data.submitted_at)));
   if (rowNumber) lines.push('', '<i>Строка ' + rowNumber + ' в таблице</i>');

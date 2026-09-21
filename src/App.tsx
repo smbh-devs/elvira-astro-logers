@@ -6,6 +6,7 @@ import { Topics } from '@/components/Topics';
 import { About } from '@/components/About';
 import { Reviews } from '@/components/Reviews';
 import { PriceComparison } from '@/components/PriceComparison';
+import { HowItWorks } from '@/components/HowItWorks';
 import { LeadForm } from '@/components/LeadForm';
 import { FAQ } from '@/components/FAQ';
 import { Guarantee } from '@/components/Guarantee';
@@ -29,6 +30,7 @@ function App() {
         <About />
         <Reviews />
         <PriceComparison />
+        <HowItWorks />
         <LeadForm />
         <FAQ />
         <Guarantee />

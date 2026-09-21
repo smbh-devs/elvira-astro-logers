@@ -50,7 +50,7 @@ export function Hero() {
 
           <p className="flex items-center gap-2 text-charcoal-800/70 mt-3 sm:mt-4 text-sm sm:text-base">
             <Phone size={16} className="text-bordeaux-600" />
-            Я перезвоню вам лично в течение 15 минут
+            Анкета → оплата 99 ₽ → мой личный звонок
           </p>
         </div>
 
