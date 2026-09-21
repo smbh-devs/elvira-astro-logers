@@ -24,13 +24,13 @@ function App() {
       <Header />
       <main>
         <Hero />
+        <HowItWorks />
         <PainPoints />
         <ValueProposition />
         <Topics />
         <About />
         <Reviews />
         <PriceComparison />
-        <HowItWorks />
         <LeadForm />
         <FAQ />
         <Guarantee />

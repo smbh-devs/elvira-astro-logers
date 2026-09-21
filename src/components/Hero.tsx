@@ -47,11 +47,6 @@ export function Hero() {
           >
             Записаться на консультацию за 99 ₽
           </button>
-
-          <p className="flex items-center gap-2 text-charcoal-800/70 mt-3 sm:mt-4 text-sm sm:text-base">
-            <Phone size={16} className="text-bordeaux-600" />
-            Анкета → оплата 99 ₽ → мой личный звонок
-          </p>
         </div>
 
         {/* Right on md+: portrait. Below md it goes first, above the badge and headline. */}
