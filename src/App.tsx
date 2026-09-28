@@ -8,6 +8,7 @@ import { LeadForm } from '@/components/LeadForm';
 import { FAQ } from '@/components/FAQ';
 import { Footer } from '@/components/Footer';
 import { PaymentResult } from '@/components/PaymentResult';
+import { StickyCta } from '@/components/StickyCta';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <FAQ />
       </main>
       <Footer />
+      <StickyCta />
       <PaymentResult />
     </div>
   );
