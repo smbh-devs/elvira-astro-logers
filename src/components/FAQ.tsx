@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ArrowRight } from 'lucide-react';
-import { scrollToForm } from '@/lib/scrollToForm';
+import { ChevronDown } from 'lucide-react';
 
 const FAQ_ITEMS = [
   {
@@ -75,16 +74,6 @@ export function FAQ() {
           ))}
         </div>
 
-        {/* Text link with arrow */}
-        <div className="text-center mt-8 sm:mt-10">
-          <button
-            onClick={() => scrollToForm('faq')}
-            className="inline-flex items-center gap-2 text-bordeaux-600 hover:text-bordeaux-700 text-base sm:text-lg font-medium group transition-colors"
-          >
-            Не нашли ответ — задайте вопрос
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
       </div>
     </section>
   );

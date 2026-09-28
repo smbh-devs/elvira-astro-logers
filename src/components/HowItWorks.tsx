@@ -1,5 +1,4 @@
 import { ArrowRight, ClipboardList, CreditCard, PhoneCall } from 'lucide-react';
-import { scrollToForm } from '@/lib/scrollToForm';
 
 const STEPS = [
   {
@@ -63,15 +62,6 @@ export function HowItWorks() {
           ))}
         </div>
 
-        <div className="text-center mt-10 sm:mt-14">
-          <button
-            onClick={() => scrollToForm('how_it_works')}
-            className="inline-flex items-center gap-2 w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 sm:py-4 bg-bordeaux-600 text-ivory-100 rounded-full text-base sm:text-lg font-semibold hover:bg-bordeaux-700 transition-all duration-300 shadow-lg hover:shadow-xl group"
-          >
-            Оставить заявку за 99 ₽
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
       </div>
     </section>
   );

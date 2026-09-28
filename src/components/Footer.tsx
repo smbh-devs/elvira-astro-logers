@@ -1,10 +1,8 @@
-import { scrollToForm } from '@/lib/scrollToForm';
-
 export function Footer() {
   return (
     <footer className="bg-charcoal-900 text-ivory-100/70 py-10 sm:py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
-        <div className="mb-8 sm:mb-10">
+        <div>
           {/* Brand */}
           <div>
             <div className="inline-flex items-center gap-2 sm:gap-3 rounded-full bg-bordeaux-600/20 px-3 py-1.5 sm:px-4 sm:py-2 mb-3">
@@ -22,15 +20,6 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Minimal text link */}
-        <div className="mt-6 sm:mt-8 text-center">
-          <button
-            onClick={() => scrollToForm('footer')}
-            className="text-ivory-100/50 hover:text-ivory-100 text-sm transition-colors"
-          >
-            Записаться на консультацию
-          </button>
-        </div>
       </div>
     </footer>
   );
