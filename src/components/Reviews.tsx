@@ -1,5 +1,5 @@
-import { Star, Quote, Image as ImageIcon } from 'lucide-react';
-import { scrollToForm } from '@/lib/scrollToForm';
+import { useCallback, useEffect, useState } from 'react';
+import { Star, Quote, Image as ImageIcon, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 
 const REVIEW_IMAGES = [
   { src: '/images/reviews/photo_2026-09-01_18.00.21.jpeg', alt: 'Скриншот отзыва клиента' },
@@ -62,7 +62,63 @@ function ReviewCard({ review }: { review: typeof REVIEWS[number] }) {
   );
 }
 
+function Lightbox({ index, onClose, onMove }: { index: number; onClose: () => void; onMove: (step: number) => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') onMove(-1);
+      if (e.key === 'ArrowRight') onMove(1);
+    };
+    document.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [onClose, onMove]);
+
+  const image = REVIEW_IMAGES[index];
+  const navButton = 'absolute top-1/2 -translate-y-1/2 flex items-center justify-center w-11 h-11 rounded-full bg-ivory-100/15 text-ivory-100 hover:bg-ivory-100/30 transition-colors';
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Отзыв клиента"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-charcoal-900/90 p-3 sm:p-8 animate-fade-in"
+      onClick={onClose}
+    >
+      <img
+        src={image.src}
+        alt={image.alt}
+        className="max-w-full max-h-full object-contain rounded-xl"
+        onClick={(e) => e.stopPropagation()}
+      />
+      <button type="button" onClick={onClose} aria-label="Закрыть" className="absolute top-3 right-3 sm:top-5 sm:right-5 flex items-center justify-center w-11 h-11 rounded-full bg-ivory-100/15 text-ivory-100 hover:bg-ivory-100/30 transition-colors">
+        <X size={24} />
+      </button>
+      <button type="button" onClick={(e) => { e.stopPropagation(); onMove(-1); }} aria-label="Предыдущий отзыв" className={`${navButton} left-2 sm:left-5`}>
+        <ChevronLeft size={26} />
+      </button>
+      <button type="button" onClick={(e) => { e.stopPropagation(); onMove(1); }} aria-label="Следующий отзыв" className={`${navButton} right-2 sm:right-5`}>
+        <ChevronRight size={26} />
+      </button>
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-ivory-100/70 text-sm">
+        {index + 1} / {REVIEW_IMAGES.length}
+      </div>
+    </div>
+  );
+}
+
 export function Reviews() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const close = useCallback(() => setOpenIndex(null), []);
+  const move = useCallback(
+    (step: number) => setOpenIndex((i) => (i === null ? i : (i + step + REVIEW_IMAGES.length) % REVIEW_IMAGES.length)),
+    [],
+  );
+
   return (
     <section id="reviews" className="py-12 sm:py-24 bg-ivory-100">
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
@@ -89,19 +145,25 @@ export function Reviews() {
           ))}
         </div>
 
-        {/* Screenshot reviews — full image, no cropping */}
-        <div className="mb-10">
-          <div className="flex items-center justify-center gap-2 mb-5 sm:mb-6">
+        {/* Screenshot reviews: large enough to read, tap opens full screen */}
+        <div>
+          <div className="flex items-center justify-center gap-2 mb-2">
             <ImageIcon size={18} className="text-gold-500" />
             <h3 className="font-heading text-xl sm:text-3xl font-semibold text-charcoal-900">
               Отзывы клиентов
             </h3>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-            {REVIEW_IMAGES.map((reviewImage) => (
-              <figure
+          <p className="text-sm sm:text-base text-charcoal-800/60 text-center mb-5 sm:mb-6">
+            Нажмите на скриншот, чтобы увеличить
+          </p>
+          <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 overflow-x-auto sm:overflow-visible -mx-4 px-4 sm:mx-0 sm:px-0 pb-4 sm:pb-0 snap-x snap-mandatory">
+            {REVIEW_IMAGES.map((reviewImage, i) => (
+              <button
                 key={reviewImage.src}
-                className="bg-ivory-50 rounded-2xl p-1.5 sm:p-2.5 border border-bordeaux-600/5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                type="button"
+                onClick={() => setOpenIndex(i)}
+                aria-label="Открыть отзыв на весь экран"
+                className="group relative flex-shrink-0 w-[85vw] sm:w-auto snap-center bg-ivory-50 rounded-2xl p-2 sm:p-3 border border-bordeaux-600/5 shadow-sm hover:shadow-lg transition-all duration-300 cursor-zoom-in"
               >
                 <img
                   src={reviewImage.src}
@@ -109,20 +171,15 @@ export function Reviews() {
                   loading="lazy"
                   className="w-full h-auto object-contain rounded-xl"
                 />
-              </figure>
+                <span className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 flex items-center justify-center w-9 h-9 rounded-full bg-charcoal-900/60 text-ivory-100 group-hover:bg-bordeaux-600 transition-colors">
+                  <ZoomIn size={18} />
+                </span>
+              </button>
             ))}
           </div>
         </div>
-
-        <div className="text-center">
-          <button
-            onClick={() => scrollToForm('reviews')}
-            className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-bordeaux-600/10 text-bordeaux-600 rounded-full text-sm sm:text-base font-medium hover:bg-bordeaux-600/20 transition-all duration-300"
-          >
-            Хочу такой же результат — записаться
-          </button>
-        </div>
       </div>
+      {openIndex !== null && <Lightbox index={openIndex} onClose={close} onMove={move} />}
     </section>
   );
 }
