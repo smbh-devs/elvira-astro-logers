@@ -1,4 +1,4 @@
-import { Phone } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { scrollToForm } from '@/lib/scrollToForm';
 
 const ABOUT_IMAGE = '/images/express/438da235-4155-43a2-8969-9a132ad51a53_(2).png';
@@ -7,6 +7,15 @@ const EXPERT_GALLERY = [
   '/images/express/IMG_7651_(1).JPG',
   '/images/express/3822c999-f35c-4324-9185-3d0af878aea5.png',
   '/images/express/a72eabb2-e82b-4c23-b87c-952300128414_(2).png',
+];
+
+// Short intro video. Stays hidden until the file is dropped into public/videos/ and set here.
+const ABOUT_VIDEO: { src: string; poster: string } | null = null;
+
+const REQUESTS = [
+  'Отношения: остаться или уйти, почему повторяются одни и те же сценарии',
+  'Работа и деньги: сменить ли работу, откуда застой в доходе',
+  'Тревога и сложные решения: как понять, куда двигаться дальше',
 ];
 
 const STATS = [
@@ -39,6 +48,16 @@ export function About() {
                 />
               ))}
             </div>
+            {ABOUT_VIDEO && (
+              <video
+                src={ABOUT_VIDEO.src}
+                poster={ABOUT_VIDEO.poster}
+                controls
+                playsInline
+                preload="none"
+                className="relative mt-3 sm:mt-4 w-full max-h-[560px] rounded-[1.5rem] shadow-xl bg-charcoal-900 object-contain"
+              />
+            )}
           </div>
 
           {/* Text */}
@@ -50,9 +69,19 @@ export function About() {
             <p className="text-base sm:text-lg text-charcoal-800/80 leading-relaxed mb-4 sm:mb-5">
               Меня зовут Эльвира. Я астролог с 12-летним опытом и более чем 10 000 проведённых консультаций. Мой метод — это соединение классической астрологии с внимательным, человечным подходом.
             </p>
-            <p className="text-base sm:text-lg text-charcoal-800/80 leading-relaxed mb-6 sm:mb-8">
+            <p className="text-base sm:text-lg text-charcoal-800/80 leading-relaxed mb-5 sm:mb-6">
               Я не делаю туманных предсказаний. Я помогаю увидеть конкретную картину вашей жизни — и найти ответы, которые уже есть внутри вас. Ко мне приходят, когда нужна ясность, а не развлечение.
             </p>
+
+            <div className="text-sm sm:text-base font-semibold text-charcoal-900 mb-3">Чаще всего ко мне приходят с вопросами</div>
+            <ul className="space-y-2.5 mb-6 sm:mb-8">
+              {REQUESTS.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-charcoal-800 text-sm sm:text-base">
+                  <Check size={18} strokeWidth={2} className="text-gold-500 flex-shrink-0 mt-0.5" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -66,13 +95,11 @@ export function About() {
               ))}
             </div>
 
-            {/* Compact button with phone icon */}
             <button
               onClick={() => scrollToForm('about')}
-              className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-bordeaux-600 text-ivory-100 rounded-full text-sm sm:text-base font-medium hover:bg-bordeaux-700 transition-all duration-300 shadow-md hover:shadow-lg"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3.5 bg-bordeaux-600 text-ivory-100 rounded-full text-base font-semibold hover:bg-bordeaux-700 transition-all duration-300 shadow-md hover:shadow-lg"
             >
-              <Phone size={18} />
-              Связаться со мной
+              Записаться за 99 ₽
             </button>
           </div>
         </div>
