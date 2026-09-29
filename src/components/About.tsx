@@ -9,9 +9,6 @@ const EXPERT_GALLERY = [
   '/images/express/a72eabb2-e82b-4c23-b87c-952300128414_(2).png',
 ];
 
-// 19 s intro with burned-in subtitles, re-encoded to 720p (~1.3 MB) from the 1080p original.
-const ABOUT_VIDEO = { src: '/videos/elvira-intro.mp4', poster: '/videos/elvira-intro-poster.jpg' };
-
 const REQUESTS = [
   'Отношения: остаться или уйти, почему повторяются одни и те же сценарии',
   'Работа и деньги: сменить ли работу, откуда застой в доходе',
@@ -48,14 +45,6 @@ export function About() {
                 />
               ))}
             </div>
-            <video
-              src={ABOUT_VIDEO.src}
-              poster={ABOUT_VIDEO.poster}
-              controls
-              playsInline
-              preload="metadata"
-              className="relative mt-3 sm:mt-4 w-full aspect-video rounded-[1.5rem] shadow-xl bg-charcoal-900 object-cover"
-            />
           </div>
 
           {/* Text */}

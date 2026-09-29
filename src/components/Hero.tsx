@@ -1,7 +1,8 @@
 import { Clock, CheckCircle } from 'lucide-react';
 import { scrollToForm } from '@/lib/scrollToForm';
 
-const HERO_IMAGE = '/images/express/188ae980-8d53-4c3d-a2f2-ff2ff84578bc.png';
+// 19 s intro with burned-in subtitles, re-encoded to 720p (~1.3 MB) from the 1080p original.
+const HERO_VIDEO = { src: '/videos/elvira-intro.mp4', poster: '/videos/elvira-intro-poster.jpg' };
 const HERO_BG_IMAGE = '/images/express/f661eae8-f96e-46ce-b139-4c8d573d3def_(1).png';
 
 export function Hero() {
@@ -52,16 +53,20 @@ export function Hero() {
           </p>
         </div>
 
-        {/* Portrait: right column on md+, a smaller photo under the button on mobile. */}
+        {/* Intro video: right column on md+, under the button on mobile. */}
         <div className="flex justify-center items-center animate-fade-in">
-          <div className="relative">
+          <div className="relative w-full">
             <div className="absolute -inset-4 bg-bordeaux-600/5 rounded-[2rem] blur-2xl" />
-            <img
-              src={HERO_IMAGE}
-              alt="Эльвира — астролог"
-              className="relative rounded-[1.5rem] md:rounded-[2rem] shadow-2xl h-[220px] w-[220px] md:h-auto md:w-auto md:max-h-[600px] object-cover object-top"
+            <video
+              src={HERO_VIDEO.src}
+              poster={HERO_VIDEO.poster}
+              controls
+              playsInline
+              preload="metadata"
+              aria-label="Видео: Эльвира рассказывает о себе"
+              className="relative w-full aspect-video rounded-[1.5rem] md:rounded-[2rem] shadow-2xl bg-charcoal-900 object-cover"
             />
-            <div className="absolute -bottom-3 -left-3 md:-bottom-4 md:-left-4 bg-ivory-100 rounded-2xl shadow-lg px-3 py-2 md:px-5 md:py-3 flex items-center gap-2 md:gap-3">
+            <div className="absolute -top-3 left-3 md:-top-4 md:-left-4 bg-ivory-100 rounded-2xl shadow-lg px-3 py-2 md:px-5 md:py-3 flex items-center gap-2 md:gap-3">
               <CheckCircle className="text-gold-500" size={20} />
               <div>
                 <div className="font-heading text-base md:text-xl font-semibold text-bordeaux-600">10 000+</div>
