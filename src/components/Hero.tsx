@@ -1,8 +1,8 @@
 import { Clock, CheckCircle } from 'lucide-react';
 import { scrollToForm } from '@/lib/scrollToForm';
 
-// 19 s intro with burned-in subtitles, re-encoded to 720p (~1.3 MB) from the 1080p original.
-const HERO_VIDEO = { src: '/videos/elvira-intro.mp4', poster: '/videos/elvira-intro-poster.jpg' };
+// 20 s intro with burned-in subtitles, re-encoded to 720p H.264 CRF 26 (~2.1 MB) from the 26 MB iPhone original.
+const HERO_VIDEO = { src: '/videos/elvira-intro-2.mp4', poster: '/videos/elvira-intro-2-poster.jpg' };
 const HERO_BG_IMAGE = '/images/express/f661eae8-f96e-46ce-b139-4c8d573d3def_(1).png';
 
 export function Hero() {
