@@ -19,7 +19,7 @@ export function Hero() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 w-full grid md:grid-cols-2 gap-6 sm:gap-8 items-center py-8 sm:py-16">
-        {/* Left: offer. On mobile this comes first so the price and button fit the first screen. */}
+        {/* Left: offer. On mobile it goes under the video. */}
         <div className="animate-slide-up">
           <div className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-bordeaux-600/10 text-bordeaux-600 rounded-full text-sm font-medium mb-6">
             <Clock size={14} />
@@ -53,8 +53,8 @@ export function Hero() {
           </p>
         </div>
 
-        {/* Intro video: right column on md+, under the button on mobile. */}
-        <div className="flex justify-center items-center animate-fade-in">
+        {/* Intro video: right column on md+, above the heading on mobile. */}
+        <div className="order-first md:order-none flex justify-center items-center animate-fade-in">
           <div className="relative w-full">
             <div className="absolute -inset-4 bg-bordeaux-600/5 rounded-[2rem] blur-2xl" />
             <video
